@@ -7,8 +7,10 @@
 "        Email: zny2008@gmail.com
 "
 "      Created: 2011-02-21 23:55:50
-"      Version: 0.0.1
+"      Version: 0.0.2
 "      History:
+"               0.0.2 | dantezhu | 2011-02-22 01:15:53 | 增加了对class,if,elif
+"                                                      | 等的兼容
 "               0.0.1 | dantezhu | 2011-02-21 23:55:50 | initialization
 "
 "=============================================================================
@@ -146,7 +148,8 @@ function! GetPythonIndent(lnum)
                 "        2
                 "    ):1
                 "}
-                if match(getline(a:lnum), ')\s*:') != -1 && match(getline(parlnum), 'def\s\+') != -1
+                if match(getline(a:lnum), ')\s*:') != -1 && 
+                            \ match(getline(parlnum), '\(def\|class\|if\|elif\|while\)\(\s\+\|(\)') != -1
                     return indent(parlnum) + &shiftwidth
                 else
                     return indent(parlnum)
