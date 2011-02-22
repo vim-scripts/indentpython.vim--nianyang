@@ -7,8 +7,11 @@
 "        Email: zny2008@gmail.com
 "
 "      Created: 2011-02-21 23:55:50
-"      Version: 0.0.2
+"      Version: 0.0.3
 "      History:
+"               0.0.3 | dantezhu | 2011-02-22 14:53:40 | 修正了Comment或者
+"                                                      | String中存在:时就会缩
+"                                                      | 进的问题
 "               0.0.2 | dantezhu | 2011-02-22 01:15:53 | 增加了对class,if,elif
 "                                                      | 等的兼容
 "               0.0.1 | dantezhu | 2011-02-21 23:55:50 | initialization
@@ -122,6 +125,14 @@ function! GetPythonIndent(lnum)
     if a:lnum == 1
         return 0
     endif
+
+    "Add-Begin by dantezhu in 2011-02-22 14:53:35
+    " If the start of the line is in a string don't change the indent.
+    if has('syntax_items')
+                \ && synIDattr(synID(a:lnum, 1, 1), 'name') =~ '\(Comment\|String\)$'
+        return -1
+    endif
+    "Add-End
     
     " If we can find an open parenthesis/bracket/brace, line up with it.
     call cursor(a:lnum, 1)
