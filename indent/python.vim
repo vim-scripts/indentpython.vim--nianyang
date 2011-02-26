@@ -7,8 +7,12 @@
 "        Email: zny2008@gmail.com
 "
 "      Created: 2011-02-21 23:55:50
-"      Version: 0.0.4
+"      Version: 0.0.6
 "      History:
+"               0.0.6 | dantezhu | 2011-02-26 23:45:18 | 只约束是字母太弱了，
+"                                                      | 还有数字和下划线
+"               0.0.5 | dantezhu | 2011-02-26 23:28:16 | 修正对调用函数时，多
+"                                                      | 行参数的)的缩进
 "               0.0.4 | dantezhu | 2011-02-24 19:32:14 | 之前的fix有问题，重写
 "               0.0.3 | dantezhu | 2011-02-22 14:53:40 | 修正了Comment或者
 "                                                      | String中存在:时就会缩
@@ -152,6 +156,19 @@ function! GetPythonIndent(lnum)
                 "        2
                 "    ):1
                 "}
+
+                "Add-Begin by dantezhu in 2011-02-26 23:23:08
+                "增加了对
+                "x = user.getdata1_(
+                "   a,
+                "   b,
+                "   c
+                "   )
+                "的支持
+                if match(getline(parlnum), '\(\a\|\d\|_\)\s*(\s*$', 0) != -1
+                    return indent(parlnum) + &shiftwidth
+                endif
+                "Add-End
                 if match(getline(a:lnum), ')\s*:') != -1 && 
                             \ match(getline(parlnum), '\(def\|class\|if\|elif\|while\)\(\s\+\|(\)') != -1
                     return indent(parlnum) + &shiftwidth
