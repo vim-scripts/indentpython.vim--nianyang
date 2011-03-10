@@ -7,8 +7,9 @@
 "        Email: zny2008@gmail.com
 "
 "      Created: 2011-02-21 23:55:50
-"      Version: 0.0.7
+"      Version: 0.0.8
 "      History:
+"               0.0.8 | dantezhu | 2011-03-10 18:41:15 | 之前修正的有点问题
 "               0.0.7 | dantezhu | 2011-03-10 11:06:01 | 向cindent看齐，函数名
 "                                                      | 太短则和匹配的地方对齐
 "               0.0.6 | dantezhu | 2011-02-26 23:45:18 | 只约束是字母太弱了，
@@ -180,7 +181,7 @@ function! GetPythonIndent(lnum)
                     "    3
                     "    )
                     " 的支持
-                    if parcol < 4
+                    if (parcol -1 - indent(parlnum)) < 4
                         return parcol - 1
                     else
                         return indent(parlnum) + &sw
