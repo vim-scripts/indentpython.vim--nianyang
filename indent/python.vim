@@ -7,8 +7,10 @@
 "        Email: zny2008@gmail.com
 "
 "      Created: 2011-02-21 23:55:50
-"      Version: 0.0.6
+"      Version: 0.0.7
 "      History:
+"               0.0.7 | dantezhu | 2011-03-10 11:06:01 | 向cindent看齐，函数名
+"                                                      | 太短则和匹配的地方对齐
 "               0.0.6 | dantezhu | 2011-02-26 23:45:18 | 只约束是字母太弱了，
 "                                                      | 还有数字和下划线
 "               0.0.5 | dantezhu | 2011-02-26 23:28:16 | 修正对调用函数时，多
@@ -166,18 +168,34 @@ function! GetPythonIndent(lnum)
                 "   )
                 "的支持
                 if match(getline(parlnum), '\(\a\|\d\|_\)\s*(\s*$', 0) != -1
-                    return indent(parlnum) + &shiftwidth
+                    "增加了对
+                    "x(
+                    "    1,
+                    "    2,
+                    "    3
+                    " )
+                    "user.login(
+                    "    1,
+                    "    2,
+                    "    3
+                    "    )
+                    " 的支持
+                    if parcol < 4
+                        return parcol - 1
+                    else
+                        return indent(parlnum) + &sw
+                    endif
                 endif
                 "Add-End
                 if match(getline(a:lnum), ')\s*:') != -1 && 
                             \ match(getline(parlnum), '\(def\|class\|if\|elif\|while\)\(\s\+\|(\)') != -1
-                    return indent(parlnum) + &shiftwidth
+                    return indent(parlnum) + &sw
                 else
                     return indent(parlnum)
                 endif
                 "Mod-End
             else
-                return indent(parlnum) + &shiftwidth
+                return indent(parlnum) + &sw
             endif
         else
             if closing_paren
@@ -187,7 +205,7 @@ function! GetPythonIndent(lnum)
             endif
         endif
     endif
-    
+
     " Examine this line
     let thisline = getline(a:lnum)
     let thisindent = indent(a:lnum)
@@ -201,7 +219,7 @@ function! GetPythonIndent(lnum)
             return -1
         endif
     endif
-        
+
     " If the line starts with 'except' or 'finally', line up with 'try'
     " or 'except'
     if thisline =~ '^\s*\(except\|finally\)\>'
@@ -212,54 +230,54 @@ function! GetPythonIndent(lnum)
             return -1
         endif
     endif
-    
+
     " Examine previous line
     let plnum = a:lnum - 1
     let pline = getline(plnum)
     let sslnum = s:StatementStart(plnum)
-    
+
     " If the previous line is blank, keep the same indentation
     if pline =~ '^\s*$'
         return -1
     endif
-    
+
     " If this line is explicitly joined, try to find an indentation that looks
     " good. 
     if pline =~ '\\$'
         let compound_statement = '^\s*\(if\|while\|for\s.*\sin\|except\)\s*'
-        let maybe_indent = matchend(getline(sslnum), compound_statement)
-        if maybe_indent != -1
-            return maybe_indent
-        else
-            return indent(sslnum) + &sw * 2
+            let maybe_indent = matchend(getline(sslnum), compound_statement)
+            if maybe_indent != -1
+                return maybe_indent
+            else
+                return indent(sslnum) + &sw * 2
+            endif
         endif
-    endif
-    
-    " If the previous line ended with a colon, indent relative to
-    " statement start.
-    if pline =~ ':\s*$'
-        "Mod-Begin by dantezhu in 2011-02-24 19:30:52
-        "FROM
-        "return indent(sslnum) + &sw
-        "TO
-        let t_col = match(pline,':\s*$')+1
-        if synIDattr(synID(a:lnum-1, t_col, 1), 'name') !~ '\(Comment\|String\)$'
-            return indent(sslnum) + &sw
-        endif
-        "Mod-End
-    endif
 
-    " If the previous line was a stop-execution statement or a pass
-    if getline(sslnum) =~ '^\s*\(break\|continue\|raise\|return\|pass\)\>'
-        " See if the user has already dedented
-        if indent(a:lnum) > indent(sslnum) - &sw
-            " If not, recommend one dedent
-            return indent(sslnum) - &sw
+        " If the previous line ended with a colon, indent relative to
+        " statement start.
+        if pline =~ ':\s*$'
+            "Mod-Begin by dantezhu in 2011-02-24 19:30:52
+            "FROM
+            "return indent(sslnum) + &sw
+            "TO
+            let t_col = match(pline,':\s*$')+1
+            if synIDattr(synID(a:lnum-1, t_col, 1), 'name') !~ '\(Comment\|String\)$'
+                return indent(sslnum) + &sw
+            endif
+            "Mod-End
         endif
-        " Otherwise, trust the user
-        return -1
-    endif
 
-    " In all other cases, line up with the start of the previous statement.
-    return indent(sslnum)
-endfunction
+        " If the previous line was a stop-execution statement or a pass
+        if getline(sslnum) =~ '^\s*\(break\|continue\|raise\|return\|pass\)\>'
+            " See if the user has already dedented
+            if indent(a:lnum) > indent(sslnum) - &sw
+                " If not, recommend one dedent
+                return indent(sslnum) - &sw
+            endif
+            " Otherwise, trust the user
+            return -1
+        endif
+
+        " In all other cases, line up with the start of the previous statement.
+        return indent(sslnum)
+    endfunction
