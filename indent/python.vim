@@ -7,8 +7,9 @@
 "        Email: zny2008@gmail.com
 "
 "      Created: 2011-02-21 23:55:50
-"      Version: 0.0.8
+"      Version: 0.0.9
 "      History:
+"               0.0.9 | dantezhu | 2011-03-15 10:15:05 | 注释和string不缩进
 "               0.0.8 | dantezhu | 2011-03-10 18:41:15 | 之前修正的有点问题
 "               0.0.7 | dantezhu | 2011-03-10 11:06:01 | 向cindent看齐，函数名
 "                                                      | 太短则和匹配的地方对齐
@@ -133,6 +134,15 @@ function! GetPythonIndent(lnum)
     if a:lnum == 1
         return 0
     endif
+
+"Add-Begin by dantezhu in 2011-03-15 10:14:01
+"修正注释和字符串缩进的问题
+    " If the start of the line is in a string don't change the indent.
+    if has('syntax_items')
+               \ && synIDattr(synID(a:lnum, col('.')-1, 1), 'name') =~ '\(Comment\|String\)$'
+       return -1
+    endif
+"Add-End
 
     " If we can find an open parenthesis/bracket/brace, line up with it.
     call cursor(a:lnum, 1)
